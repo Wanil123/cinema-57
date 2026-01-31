@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+/* ============================================
+   MAISON LUXE — Cinema-Inspired E-Commerce
+   ============================================ */
+
+@theme {
+  --color-black: #1B1B1B;
+  --color-charcoal: #2D2D2D;
+  --color-crimson: #B91C3A;
+  --color-crimson-dark: #8B1530;
+  --color-gold: #D4A853;
+  --color-gold-light: #E8C97A;
+  --color-warm: #F0E2C8;
+  --color-cream: #FDF8F0;
+  --color-ivory: #FFFCF7;
+  --color-white: #FFFFFF;
+  --color-sand: #C9B99A;
+  --color-slate: #6B6B6B;
+  --color-light-grey: #E8E4DF;
+  --color-deep-navy: #1A2744;
+  --color-burgundy: #6B2D3E;
+  --color-teal: #2A7B6F;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+  background: var(--color-ivory);
+  color: var(--color-black);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-crimson);
+  color: white;
+}
+
+/* --- Custom Cursor --- */
+.custom-cursor {
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--color-black);
+  border-radius: 50%;
+  position: fixed; pointer-events: none; z-index: 9999;
+  transition: transform 0.2s cubic-bezier(0.19,1,0.22,1), background 0.2s ease, border-color 0.2s ease;
+  mix-blend-mode: difference;
+}
+.custom-cursor.hovering {
+  transform: scale(4);
+  background: white; border-color: white;
+}
+
+/* --- Marquee --- */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track { animation: marquee 35s linear infinite; }
+.marquee-track:hover { animation-play-state: paused; }
+
+/* --- Scroll Progress --- */
+.scroll-progress {
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--color-crimson), var(--color-gold));
+}
+
+/* --- Image Zoom --- */
+.img-zoom { overflow: hidden; }
+.img-zoom img { transition: transform 0.8s cubic-bezier(0.19,1,0.22,1); }
+.img-zoom:hover img { transform: scale(1.06); }
+
+/* --- Button Slide Fill --- */
+.btn-fill {
+  position: relative; overflow: hidden; z-index: 1;
+}
+.btn-fill::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--color-crimson);
+  transform: translateY(100%);
+  transition: transform 0.5s cubic-bezier(0.19,1,0.22,1);
+  z-index: -1;
+}
+.btn-fill:hover::before { transform: translateY(0); }
+
+/* --- Separator --- */
+.separator {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--color-ivory); }
+::-webkit-scrollbar-thumb { background: var(--color-crimson); border-radius: 3px; }
+
+/* --- Gold Shimmer --- */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.text-shimmer {
+  background: linear-gradient(90deg, var(--color-crimson), var(--color-gold), #fff, var(--color-gold), var(--color-crimson));
+  background-size: 200% auto;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 5s linear infinite;
+}
+
+/* --- Smooth images --- */
+img { transition: opacity 0.4s ease; }
