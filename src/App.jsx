@@ -7,13 +7,11 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import GenrePage from './pages/GenrePage'
 import Admin from './pages/Admin'
-import CustomCursor from './components/CustomCursor'
 import ScrollProgress from './components/ScrollProgress'
 
 function App() {
   return (
     <>
-      <CustomCursor />
       <ScrollProgress />
       <Routes>
         <Route path="/" element={<Home />} />
