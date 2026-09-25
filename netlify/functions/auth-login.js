@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import db from './lib/turso.js'
+import { jwtSecret, validateAccount } from '../../server/security.js'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'festival57_secret_key_2025'
+const JWT_SECRET = jwtSecret()
 
 export default async (req) => {
   if (req.method !== 'POST') {
@@ -10,10 +11,11 @@ export default async (req) => {
   }
 
   try {
-    const { email, password } = await req.json()
-    if (!email || !password) {
-      return new Response(JSON.stringify({ error: 'Courriel et mot de passe requis' }), { status: 400 })
+    const account = validateAccount(await req.json())
+    if (!account) {
+      return new Response(JSON.stringify({ error: 'Courriel et mot de passe invalides' }), { status: 400 })
     }
+    const { email, password } = account
 
     const result = await db.execute({ sql: 'SELECT * FROM users WHERE email = ?', args: [email] })
     const user = result.rows[0]
@@ -30,9 +32,9 @@ export default async (req) => {
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' })
 
     return new Response(JSON.stringify({ user: payload, token }), {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
     })
-  } catch (err) {
+  } catch {
     return new Response(JSON.stringify({ error: 'Erreur serveur' }), { status: 500 })
   }
 }

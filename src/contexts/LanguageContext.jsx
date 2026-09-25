@@ -43,6 +43,8 @@ export function LanguageProvider({ children }) {
   )
 }
 
+// This module intentionally exports the provider and its companion hook together.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTranslation() {
   const ctx = useContext(LanguageContext)
   if (!ctx) throw new Error('useTranslation must be used within LanguageProvider')

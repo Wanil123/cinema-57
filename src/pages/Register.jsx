@@ -77,13 +77,13 @@ export default function Register() {
             <div>
               <label className="text-xs uppercase tracking-wider font-semibold text-slate block mb-2">{t('register.password')}</label>
               <input name="password" type="password" required value={form.password} onChange={handleChange}
-                placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" minLength={6}
+                placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" minLength={12} maxLength={72}
                 className="w-full border border-charcoal/15 rounded-lg px-5 py-3.5 text-sm outline-none focus:border-crimson focus:shadow-lg focus:shadow-crimson/5 transition-all" />
             </div>
             <div>
               <label className="text-xs uppercase tracking-wider font-semibold text-slate block mb-2">{t('register.confirmPassword')}</label>
               <input name="password_confirmation" type="password" required value={form.password_confirmation} onChange={handleChange}
-                placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" minLength={6}
+                placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" minLength={12} maxLength={72}
                 className="w-full border border-charcoal/15 rounded-lg px-5 py-3.5 text-sm outline-none focus:border-crimson focus:shadow-lg focus:shadow-crimson/5 transition-all" />
             </div>
             <button type="submit"

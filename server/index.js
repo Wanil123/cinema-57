@@ -1,22 +1,25 @@
 import express from 'express'
-import cors from 'cors'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import db from './db.js'
+import { jwtSecret, validateAccount, validateReservation } from './security.js'
 
 const app = express()
 const PORT = process.env.PORT || 3005
-const JWT_SECRET = 'festival57_secret_key_2025'
+const JWT_SECRET = jwtSecret()
 
-app.use(cors())
-app.use(express.json())
+app.use(express.json({ limit: '16kb' }))
+app.use('/api', (_req, res, next) => { res.set('Cache-Control', 'no-store'); next() })
 
 // ============ AUTH MIDDLEWARE ============
 function auth(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1]
+  const token = /^Bearer (\S+)$/i.exec(req.headers.authorization || '')?.[1]
   if (!token) return res.status(401).json({ error: 'Token requis' })
   try {
-    req.user = jwt.verify(token, JWT_SECRET)
+    const claims = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] })
+    const user = db.prepare('SELECT id, name, email, role FROM users WHERE id = ?').get(claims.id)
+    if (!user) return res.status(401).json({ error: 'Compte introuvable' })
+    req.user = user
     next()
   } catch {
     res.status(401).json({ error: 'Token invalide' })
@@ -30,9 +33,9 @@ function adminOnly(req, res, next) {
 
 // ============ AUTH ROUTES ============
 app.post('/api/auth/register', (req, res) => {
-  const { name, email, password } = req.body
-  if (!name || !email || !password) return res.status(400).json({ error: 'Tous les champs sont requis' })
-  if (password.length < 6) return res.status(400).json({ error: 'Mot de passe trop court (min 6 caracteres)' })
+  const account = validateAccount(req.body, true)
+  if (!account) return res.status(400).json({ error: 'Nom, courriel et mot de passe valide de 12 caracteres minimum requis' })
+  const { name, email, password } = account
 
   const exists = db.prepare('SELECT id FROM users WHERE email = ?').get(email)
   if (exists) return res.status(400).json({ error: 'Ce courriel est deja utilise' })
@@ -45,8 +48,9 @@ app.post('/api/auth/register', (req, res) => {
 })
 
 app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body
-  if (!email || !password) return res.status(400).json({ error: 'Courriel et mot de passe requis' })
+  const account = validateAccount(req.body)
+  if (!account) return res.status(400).json({ error: 'Courriel et mot de passe invalides' })
+  const { email, password } = account
 
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email)
   if (!user) return res.status(401).json({ error: 'Courriel ou mot de passe invalide' })
@@ -151,16 +155,13 @@ app.get('/api/reservations', auth, adminOnly, (req, res) => {
 })
 
 app.post('/api/reservations', (req, res) => {
-  const { name, email, phone, filmId, forfaitId, quantity } = req.body
-  if (!name || !email) return res.status(400).json({ error: 'Nom et courriel requis' })
-
-  const forfaitPrices = { 1: 45, 2: 120, 3: 250 }
-  const price = forfaitPrices[forfaitId] || 0
-  const total = `${price * (quantity || 1)}$`
+  const reservation = validateReservation(req.body)
+  if (!reservation) return res.status(400).json({ error: 'Reservation invalide' })
+  const { name, email, phone, filmId, forfaitId, quantity, total } = reservation
 
   const result = db.prepare(
     'INSERT INTO reservations (name, email, phone, film_id, forfait_id, quantity, total) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).run(name, email, phone, filmId, forfaitId, quantity || 1, total)
+  ).run(name, email, phone, filmId, forfaitId, quantity, total)
   res.json({ id: result.lastInsertRowid, total })
 })
 

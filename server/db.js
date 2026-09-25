@@ -1,7 +1,6 @@
 import Database from 'better-sqlite3'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
-import bcrypt from 'bcryptjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const db = new Database(join(__dirname, 'festival.db'))
@@ -62,15 +61,5 @@ db.exec(`
     FOREIGN KEY (film_id) REFERENCES films(id)
   );
 `)
-
-// Seed admin user if none exists
-const adminExists = db.prepare('SELECT id FROM users WHERE role = ?').get('admin')
-if (!adminExists) {
-  const hash = bcrypt.hashSync('admin123', 10)
-  db.prepare('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)').run(
-    'Admin Festival', 'admin@fdf.ca', hash, 'admin'
-  )
-  console.log('Admin user created: admin@fdf.ca / admin123')
-}
 
 export default db

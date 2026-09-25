@@ -1,4 +1,5 @@
 import db from './lib/turso.js'
+import { validateReservation } from '../../server/security.js'
 
 export default async (req) => {
   if (req.method !== 'POST') {
@@ -6,24 +7,21 @@ export default async (req) => {
   }
 
   try {
-    const { name, email, phone, filmId, forfaitId, quantity } = await req.json()
-    if (!name || !email) {
-      return new Response(JSON.stringify({ error: 'Nom et courriel requis' }), { status: 400 })
+    const reservation = validateReservation(await req.json())
+    if (!reservation) {
+      return new Response(JSON.stringify({ error: 'Reservation invalide' }), { status: 400 })
     }
-
-    const forfaitPrices = { 1: 45, 2: 120, 3: 250 }
-    const price = forfaitPrices[forfaitId] || 0
-    const total = `${price * (quantity || 1)}$`
+    const { name, email, phone, filmId, forfaitId, quantity, total } = reservation
 
     const result = await db.execute({
       sql: 'INSERT INTO reservations (name, email, phone, film_id, forfait_id, quantity, total) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      args: [name, email, phone || null, filmId || null, forfaitId || null, quantity || 1, total]
+      args: [name, email, phone, filmId, forfaitId, quantity, total]
     })
 
     return new Response(JSON.stringify({ id: Number(result.lastInsertRowid), total }), {
       headers: { 'Content-Type': 'application/json' }
     })
-  } catch (err) {
+  } catch {
     return new Response(JSON.stringify({ error: 'Erreur serveur' }), { status: 500 })
   }
 }
