@@ -8,6 +8,8 @@ export default function Partenaires() {
   const { t } = useTranslation()
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-50px' })
+  // Do not present real brands as partners of a fictional portfolio project.
+  if (import.meta.env.VITE_PORTFOLIO_PREVIEW === 'true') return null
   return (
     <section className="bg-ivory py-20 px-6 overflow-hidden">
       <div ref={ref}>

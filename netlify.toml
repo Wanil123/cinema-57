@@ -2,6 +2,14 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  VITE_PORTFOLIO_PREVIEW = "true"
+
+# The public portfolio preview is static. The API requires separately validated
+# secrets, an admin rotation and rate limiting before it can be exposed.
+[functions]
+  directory = "netlify/disabled-functions"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

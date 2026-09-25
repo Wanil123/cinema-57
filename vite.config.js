@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  // Servi sous https://wanil123.github.io/cinema-57/
-  base: '/cinema-57/',
+  // GitHub Pages uses a subdirectory; Netlify serves the preview at its domain root.
+  base: process.env.VITE_PORTFOLIO_PREVIEW === 'true' ? '/' : '/cinema-57/',
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {

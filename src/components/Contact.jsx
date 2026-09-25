@@ -3,7 +3,8 @@ import { motion, useInView } from 'framer-motion'
 import { useTranslation } from '../contexts/LanguageContext'
 
 export default function Contact() {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
+  const portfolioPreview = import.meta.env.VITE_PORTFOLIO_PREVIEW === 'true'
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
   const [focused, setFocused] = useState(null)
@@ -24,7 +25,13 @@ export default function Contact() {
                 {t('contact.title_line1')}<br /><span className="text-crimson">{t('contact.title_line2')}</span>
               </h2>
             </motion.div>
-            <motion.form initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+            {portfolioPreview ? (
+              <div className="rounded-xl border border-gold/30 bg-white/5 p-7 leading-relaxed text-white/75">
+                {lang === 'fr'
+                  ? 'Section de contact présentée dans le cadre du prototype. Ce festival est fictif : aucun message n’est transmis depuis cette démonstration.'
+                  : 'Contact section shown as part of the prototype. This festival is fictional: no message is sent from this demo.'}
+              </div>
+            ) : <motion.form initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.2, duration: 0.8 }} className="space-y-5" onSubmit={e => e.preventDefault()}>
               {[{ n: 'name', t: 'text', p: t('contact.nom') }, { n: 'email', t: 'email', p: t('contact.courriel') }].map((f, i) => (
                 <motion.input key={f.n} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -41,19 +48,19 @@ export default function Contact() {
                 className="w-full py-4 bg-crimson text-white rounded-lg font-semibold text-sm tracking-wider uppercase hover:bg-crimson-dark transition-colors duration-300">
                 {t('contact.envoyer')}
               </motion.button>
-            </motion.form>
-            <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
+            </motion.form>}
+            {!portfolioPreview && <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
               transition={{ delay: 0.5 }} className="hidden lg:flex justify-between mt-12 text-sm">
               <div><h4 className="font-semibold mb-1">{t('contact.billetterie')}</h4><p className="text-white/40">2800 Ave du Cosmodome, Laval</p></div>
               <div><h4 className="font-semibold mb-1">{t('contact.informations')}</h4><p className="text-white/40">1-855-800-2114</p><p className="text-white/40">infofestival@fdf.ca</p></div>
-            </motion.div>
+            </motion.div>}
           </div>
-          <motion.div initial={{ opacity: 0, x: 60 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ delay: 0.3, duration: 1 }}>
+          {!portfolioPreview && <motion.div initial={{ opacity: 0, x: 60 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ delay: 0.3, duration: 1 }}>
             <div className="rounded-2xl overflow-hidden h-full min-h-[400px] shadow-2xl">
               <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2793.3370150356477!2d-73.74487212372057!3d45.56366097107567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc923c5e3589ec1%3A0x8a14f3982c7c6084!2sCin%C3%A9plex%20Laval!5e0!3m2!1sfr!2sca!4v1727965252978!5m2!1sfr!2sca"
                 className="w-full h-full border-0 min-h-[400px]" allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="Google Maps" />
             </div>
-          </motion.div>
+          </motion.div>}
         </div>
       </div>
     </section>
