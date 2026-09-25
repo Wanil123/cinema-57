@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import db from './lib/turso.js'
+import { jwtSecret, validateAccount } from '../../server/security.js'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'festival57_secret_key_2025'
+const JWT_SECRET = jwtSecret()
 
 export default async (req) => {
   if (req.method !== 'POST') {
@@ -10,13 +11,11 @@ export default async (req) => {
   }
 
   try {
-    const { name, email, password } = await req.json()
-    if (!name || !email || !password) {
-      return new Response(JSON.stringify({ error: 'Tous les champs sont requis' }), { status: 400 })
+    const account = validateAccount(await req.json(), true)
+    if (!account) {
+      return new Response(JSON.stringify({ error: 'Nom, courriel et mot de passe valide de 12 caracteres minimum requis' }), { status: 400 })
     }
-    if (password.length < 6) {
-      return new Response(JSON.stringify({ error: 'Mot de passe trop court (min 6 caracteres)' }), { status: 400 })
-    }
+    const { name, email, password } = account
 
     const exists = await db.execute({ sql: 'SELECT id FROM users WHERE email = ?', args: [email] })
     if (exists.rows.length > 0) {
@@ -33,9 +32,9 @@ export default async (req) => {
     const token = jwt.sign(user, JWT_SECRET, { expiresIn: '7d' })
 
     return new Response(JSON.stringify({ user, token }), {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
     })
-  } catch (err) {
+  } catch {
     return new Response(JSON.stringify({ error: 'Erreur serveur' }), { status: 500 })
   }
 }

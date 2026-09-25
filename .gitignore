@@ -24,4 +24,8 @@ dist-ssr
 *.sw?
 .claude
 server/festival.db
+server/festival.db-shm
+server/festival.db-wal
 .env
+.env.*
+!.env.example

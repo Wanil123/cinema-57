@@ -33,7 +33,15 @@ L'interface est alors disponible à l'adresse indiquée par Vite. Pour essayer l
 npm run server
 ```
 
-Le serveur local utilise le port `3005` par défaut et Vite redirige les requêtes `/api` vers lui. **Ne déployez pas le serveur de démonstration tel quel en production** : la gestion des secrets et du compte d'administration doit être revue avant toute exposition publique.
+Le serveur local utilise le port `3005` par défaut et Vite redirige les requêtes `/api` vers lui. Avant de le lancer, définissez `JWT_SECRET` dans l'environnement (valeur aléatoire privée d'au moins 32 octets). Il n'y a plus de secret ni de compte administrateur par défaut. Les anciens jetons deviennent invalides après rotation de ce secret.
+
+Pour créer ou remplacer le compte administrateur local, définissez `ADMIN_NAME`, `ADMIN_EMAIL` et `ADMIN_PASSWORD` dans votre environnement, puis exécutez `npm run setup:admin`. Le mot de passe doit compter au moins 12 caractères et au plus 72 octets. Ne commitez jamais `.env`, une base SQLite ni ses fichiers WAL/SHM. Si l'ancien compte de démonstration existe, cette commande le remplace; vérifiez ensuite qu'il ne permet plus de connexion.
+
+Sur Netlify, configurez `JWT_SECRET`, `TURSO_DATABASE_URL` et `TURSO_AUTH_TOKEN` comme variables secrètes destinées aux fonctions, puis redéployez. `node setup-turso.js` lit les variables depuis l'environnement; avec `ADMIN_NAME`, `ADMIN_EMAIL` et `ADMIN_PASSWORD`, il configure ou fait tourner le compte administrateur Turso. Il ne faut plus passer le jeton Turso en argument de commande. **Ne déployez pas avant de faire tourner le JWT et l'ancien mot de passe administrateur dans la base réellement utilisée.**
+
+Le formulaire enregistre une *demande* de réservation, sans paiement, contrôle de stock ni courriel automatique. Les routes d'authentification et de réservation publiques exigent encore une protection anti-abus/rate limiting au niveau de l'hébergement avant ouverture de cette API au public. L'aperçu GitHub Pages reste statique.
+
+Vérifications : `npm test`, `npm run lint`, `npm run build`, `npm audit`.
 
 ## Structure
 

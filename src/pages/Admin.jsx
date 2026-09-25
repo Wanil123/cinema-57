@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { films as initialFilms, news as initialNews } from '../data/genres'
@@ -11,9 +11,6 @@ function AdminLayout({ children }) {
   const { t } = useTranslation()
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  // Close sidebar on route change (mobile)
-  useEffect(() => { setSidebarOpen(false) }, [location.pathname])
 
   const navItems = [
     { path: '/admin', label: t('admin.dashboard'), icon: 'dashboard' },
@@ -53,7 +50,7 @@ function AdminLayout({ children }) {
 
         <nav className="flex-1 py-4">
           {navItems.map(item => (
-            <Link key={item.path} to={item.path}
+            <Link key={item.path} to={item.path} onClick={() => setSidebarOpen(false)}
               className={`flex items-center gap-3 px-6 py-3 text-sm transition-colors ${
                 (item.path === '/admin' ? location.pathname === '/admin' : location.pathname.startsWith(item.path))
                   ? 'bg-crimson/20 text-crimson border-r-2 border-crimson'

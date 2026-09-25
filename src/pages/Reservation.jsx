@@ -17,11 +17,16 @@ export default function Reservation() {
   const [selectedForfait, setSelectedForfait] = useState(null)
   const [form, setForm] = useState({ name: '', email: '', phone: '', quantity: 1 })
   const [submitted, setSubmitted] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (submitting) return
+    setSubmitError('')
+    setSubmitting(true)
     try {
       const res = await fetch('/api/reservations', {
         method: 'POST',
@@ -32,11 +37,12 @@ export default function Reservation() {
           forfaitId: selectedForfait,
         })
       })
-      if (res.ok) {
-        setSubmitted(true)
-      }
-    } catch {
+      if (!res.ok) throw new Error('Reservation refusee')
       setSubmitted(true)
+    } catch {
+      setSubmitError(lang === 'en' ? 'The reservation could not be saved. Please try again later.' : 'La reservation n a pas ete enregistree. Veuillez reessayer plus tard.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -216,12 +222,13 @@ export default function Reservation() {
                   </div>
                 </div>
               </div>
+              {submitError && <p role="alert" className="text-crimson text-sm mb-4">{submitError}</p>}
               <div className="flex gap-4">
                 <button type="button" onClick={() => setStep(2)}
                   className="px-6 py-3.5 border border-charcoal/20 rounded-lg text-sm font-semibold hover:bg-charcoal/5 transition-colors">
                   {t('reservation.modify')}
                 </button>
-                <button onClick={handleSubmit}
+                <button onClick={handleSubmit} disabled={submitting}
                   className="flex-1 py-3.5 bg-crimson text-white rounded-lg font-semibold text-sm tracking-wider uppercase hover:bg-crimson-dark transition-colors">
                   {t('reservation.confirm')}
                 </button>
